@@ -74,7 +74,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		GetAllPosts func(childComplexity int) int
-		GetPostID   func(childComplexity int, id string) int
+		GetPostByID   func(childComplexity int, id string) int
 	}
 
 	Subscription struct {
@@ -89,7 +89,7 @@ type MutationResolver interface {
 }
 type QueryResolver interface {
 	GetAllPosts(ctx context.Context) ([]*model.Post, error)
-	GetPostID(ctx context.Context, id string) (*model.Post, error)
+	GetPostByID(ctx context.Context, id string) (*model.Post, error)
 }
 type SubscriptionResolver interface {
 	CommentAdded(ctx context.Context, postID string) (<-chan *model.Comment, error)
@@ -246,17 +246,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.GetAllPosts(childComplexity), true
 
-	case "Query.getPostId":
-		if e.complexity.Query.GetPostID == nil {
+	case "Query.getPostById":
+		if e.complexity.Query.GetPostByID == nil {
 			break
 		}
 
-		args, err := ec.field_Query_getPostId_args(context.TODO(), rawArgs)
+		args, err := ec.field_Query_getPostById_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Query.GetPostID(childComplexity, args["id"].(string)), true
+		return e.complexity.Query.GetPostByID(childComplexity, args["id"].(string)), true
 
 	case "Subscription.commentAdded":
 		if e.complexity.Subscription.CommentAdded == nil {
@@ -415,7 +415,7 @@ type Comment {
 
 type Query {
   getAllPosts: [Post!]!
-  getPostId(id: ID!): Post
+  getPostById(id: ID!): Post
 }
 
 type Mutation {
@@ -568,7 +568,7 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 	return args, nil
 }
 
-func (ec *executionContext) field_Query_getPostId_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Query_getPostById_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -1465,8 +1465,8 @@ func (ec *executionContext) fieldContext_Query_getAllPosts(_ context.Context, fi
 	return fc, nil
 }
 
-func (ec *executionContext) _Query_getPostId(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Query_getPostId(ctx, field)
+func (ec *executionContext) _Query_getPostById(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getPostById(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -1479,7 +1479,7 @@ func (ec *executionContext) _Query_getPostId(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetPostID(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Query().GetPostByID(rctx, fc.Args["id"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1493,7 +1493,7 @@ func (ec *executionContext) _Query_getPostId(ctx context.Context, field graphql.
 	return ec.marshalOPost2ᚖInternProjᚋgraphᚋmodelᚐPost(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getPostId(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_getPostById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1524,7 +1524,7 @@ func (ec *executionContext) fieldContext_Query_getPostId(ctx context.Context, fi
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getPostId_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Query_getPostById_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -3753,7 +3753,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return rrm(innerCtx) })
-		case "getPostId":
+		case "getPostById":
 			field := field
 
 			innerFunc := func(ctx context.Context, _ *graphql.FieldSet) (res graphql.Marshaler) {
@@ -3762,7 +3762,7 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._Query_getPostId(ctx, field)
+				res = ec._Query_getPostById(ctx, field)
 				return res
 			}
 

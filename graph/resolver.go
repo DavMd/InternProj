@@ -5,12 +5,15 @@ import (
 	"InternProj/graph/model"
 	"context"
 	"fmt"
+	"sync"
 
 	"github.com/google/uuid"
 )
 
 type Resolver struct {
-	posts []*model.Post
+	posts       []*model.Post
+	subscribers map[string][]chan *model.Comment
+	mu          sync.Mutex
 }
 
 func (r *Resolver) Mutation() generated.MutationResolver {
@@ -19,6 +22,10 @@ func (r *Resolver) Mutation() generated.MutationResolver {
 
 func (r *Resolver) Query() generated.QueryResolver {
 	return &queryResolver{r}
+}
+
+func (r *Resolver) Subscription() generated.SubscriptionResolver {
+	return &subscriptionResolver{r}
 }
 
 type mutationResolver struct{ *Resolver }
@@ -65,6 +72,12 @@ func (r *mutationResolver) CreateComment(ctx context.Context, postID string, par
 				parentComment.ChildComments = append(parentComment.ChildComments, comment)
 			}
 
+			r.mu.Lock()
+			defer r.mu.Unlock()
+			for _, ch := range r.subscribers[postID] {
+				ch <- comment
+			}
+
 			return comment, nil
 		}
 	}
@@ -102,11 +115,30 @@ func (r *queryResolver) GetAllPosts(ctx context.Context) ([]*model.Post, error) 
 	return r.posts, nil
 }
 
-func (r *queryResolver) GetPostID(ctx context.Context, id string) (*model.Post, error) {
+func (r *queryResolver) GetPostByID(ctx context.Context, id string) (*model.Post, error) {
 	for _, post := range r.posts {
 		if post.ID == id {
 			return post, nil
 		}
 	}
 	return nil, fmt.Errorf("post not found")
+}
+
+type subscriptionResolver struct{ *Resolver }
+
+func (r *subscriptionResolver) CommentAdded(ctx context.Context, postID string) (<-chan *model.Comment, error) {
+	ch := make(chan *model.Comment, 1)
+
+	r.mu.Lock()
+	if r.subscribers == nil {
+		r.subscribers = make(map[string][]chan *model.Comment)
+	}
+	r.subscribers[postID] = append(r.subscribers[postID], ch)
+	r.mu.Unlock()
+
+	go func() {
+		<-ctx.Done()
+	}()
+
+	return ch, nil
 }
