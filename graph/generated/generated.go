@@ -875,7 +875,7 @@ func (ec *executionContext) _Comment_children(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.Children, nil
+		return obj.ChildComments, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1272,7 +1272,7 @@ func (ec *executionContext) _Post_commentsDisabled(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.CommentsDisabled, nil
+		return obj.IsDisabledComments, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
