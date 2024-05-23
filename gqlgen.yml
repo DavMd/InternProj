@@ -6,8 +6,8 @@ exec:
   package: generated
 
 model:
-  filename: graph/model/models_gen.go
-  package: model
+  filename: internal/models/models_gen.go
+  package: models
 
 resolver:
   layout: follow-schema

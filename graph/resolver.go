@@ -2,7 +2,7 @@ package graph
 
 import (
 	"InternProj/graph/generated"
-	"InternProj/graph/model"
+	"InternProj/internal/models"
 	"context"
 	"fmt"
 	"sync"
@@ -11,8 +11,8 @@ import (
 )
 
 type Resolver struct {
-	posts       []*model.Post
-	subscribers map[string][]chan *model.Comment
+	posts       []*models.Post
+	subscribers map[string][]chan *models.Comment
 	mu          sync.Mutex
 }
 
@@ -30,20 +30,20 @@ func (r *Resolver) Subscription() generated.SubscriptionResolver {
 
 type mutationResolver struct{ *Resolver }
 
-func (r *mutationResolver) CreatePost(ctx context.Context, title string, body string, userID string) (*model.Post, error) {
-	post := &model.Post{
+func (r *mutationResolver) CreatePost(ctx context.Context, title string, body string, userID string) (*models.Post, error) {
+	post := &models.Post{
 		ID:                 uuid.NewString(),
 		Title:              title,
 		Body:               body,
 		IsDisabledComments: false,
 		UserID:             userID,
-		Comments:           []*model.Comment{},
+		Comments:           []*models.Comment{},
 	}
 	r.posts = append(r.posts, post)
 	return post, nil
 }
 
-func (r *mutationResolver) CreateComment(ctx context.Context, postID string, parentID *string, body string) (*model.Comment, error) {
+func (r *mutationResolver) CreateComment(ctx context.Context, postID string, parentID *string, body string) (*models.Comment, error) {
 	if len(body) > 2000 {
 		return nil, fmt.Errorf("post length exceeds 2000 characters")
 	}
@@ -54,12 +54,12 @@ func (r *mutationResolver) CreateComment(ctx context.Context, postID string, par
 				return nil, fmt.Errorf("the post is closed for comment")
 			}
 
-			comment := &model.Comment{
+			comment := &models.Comment{
 				ID:            uuid.NewString(),
 				PostID:        postID,
 				ParentID:      parentID,
 				Body:          body,
-				ChildComments: []*model.Comment{},
+				ChildComments: []*models.Comment{},
 			}
 
 			if parentID == nil {
@@ -84,7 +84,7 @@ func (r *mutationResolver) CreateComment(ctx context.Context, postID string, par
 	return nil, fmt.Errorf("post not found")
 }
 
-func findCommentByID(comments []*model.Comment, id string) *model.Comment {
+func findCommentByID(comments []*models.Comment, id string) *models.Comment {
 	for _, comment := range comments {
 		if comment.ID == id {
 			return comment
@@ -96,7 +96,7 @@ func findCommentByID(comments []*model.Comment, id string) *model.Comment {
 	return nil
 }
 
-func (r *mutationResolver) ChangePostCommentsAccess(ctx context.Context, postID string, userID string, commentsDisabled bool) (*model.Post, error) {
+func (r *mutationResolver) ChangePostCommentsAccess(ctx context.Context, postID string, userID string, commentsDisabled bool) (*models.Post, error) {
 	for _, post := range r.posts {
 		if post.ID == postID {
 			if post.UserID == userID {
@@ -111,11 +111,11 @@ func (r *mutationResolver) ChangePostCommentsAccess(ctx context.Context, postID 
 
 type queryResolver struct{ *Resolver }
 
-func (r *queryResolver) GetAllPosts(ctx context.Context) ([]*model.Post, error) {
+func (r *queryResolver) GetAllPosts(ctx context.Context) ([]*models.Post, error) {
 	return r.posts, nil
 }
 
-func (r *queryResolver) GetPostByID(ctx context.Context, id string) (*model.Post, error) {
+func (r *queryResolver) GetPostByID(ctx context.Context, id string) (*models.Post, error) {
 	for _, post := range r.posts {
 		if post.ID == id {
 			return post, nil
@@ -126,12 +126,12 @@ func (r *queryResolver) GetPostByID(ctx context.Context, id string) (*model.Post
 
 type subscriptionResolver struct{ *Resolver }
 
-func (r *subscriptionResolver) CommentAdded(ctx context.Context, postID string) (<-chan *model.Comment, error) {
-	ch := make(chan *model.Comment, 1)
+func (r *subscriptionResolver) CommentAdded(ctx context.Context, postID string) (<-chan *models.Comment, error) {
+	ch := make(chan *models.Comment, 1)
 
 	r.mu.Lock()
 	if r.subscribers == nil {
-		r.subscribers = make(map[string][]chan *model.Comment)
+		r.subscribers = make(map[string][]chan *models.Comment)
 	}
 	r.subscribers[postID] = append(r.subscribers[postID], ch)
 	r.mu.Unlock()

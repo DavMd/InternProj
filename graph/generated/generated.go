@@ -3,7 +3,7 @@
 package generated
 
 import (
-	"InternProj/graph/model"
+	"InternProj/internal/models"
 	"bytes"
 	"context"
 	"errors"
@@ -74,7 +74,7 @@ type ComplexityRoot struct {
 
 	Query struct {
 		GetAllPosts func(childComplexity int) int
-		GetPostByID   func(childComplexity int, id string) int
+		GetPostByID func(childComplexity int, id string) int
 	}
 
 	Subscription struct {
@@ -83,16 +83,16 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreatePost(ctx context.Context, title string, body string, userID string) (*model.Post, error)
-	CreateComment(ctx context.Context, postID string, parentID *string, body string) (*model.Comment, error)
-	ChangePostCommentsAccess(ctx context.Context, postID string, userID string, isDisabledComments bool) (*model.Post, error)
+	CreatePost(ctx context.Context, title string, body string, userID string) (*models.Post, error)
+	CreateComment(ctx context.Context, postID string, parentID *string, body string) (*models.Comment, error)
+	ChangePostCommentsAccess(ctx context.Context, postID string, userID string, isDisabledComments bool) (*models.Post, error)
 }
 type QueryResolver interface {
-	GetAllPosts(ctx context.Context) ([]*model.Post, error)
-	GetPostByID(ctx context.Context, id string) (*model.Post, error)
+	GetAllPosts(ctx context.Context) ([]*models.Post, error)
+	GetPostByID(ctx context.Context, id string) (*models.Post, error)
 }
 type SubscriptionResolver interface {
-	CommentAdded(ctx context.Context, postID string) (<-chan *model.Comment, error)
+	CommentAdded(ctx context.Context, postID string) (<-chan *models.Comment, error)
 }
 
 type executableSchema struct {
@@ -636,7 +636,7 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 
 // region    **************************** field.gotpl *****************************
 
-func (ec *executionContext) _Comment_id(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
+func (ec *executionContext) _Comment_id(ctx context.Context, field graphql.CollectedField, obj *models.Comment) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Comment_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -680,7 +680,7 @@ func (ec *executionContext) fieldContext_Comment_id(_ context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _Comment_postID(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
+func (ec *executionContext) _Comment_postID(ctx context.Context, field graphql.CollectedField, obj *models.Comment) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Comment_postID(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -724,7 +724,7 @@ func (ec *executionContext) fieldContext_Comment_postID(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Comment_parentID(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
+func (ec *executionContext) _Comment_parentID(ctx context.Context, field graphql.CollectedField, obj *models.Comment) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Comment_parentID(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -765,7 +765,7 @@ func (ec *executionContext) fieldContext_Comment_parentID(_ context.Context, fie
 	return fc, nil
 }
 
-func (ec *executionContext) _Comment_body(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
+func (ec *executionContext) _Comment_body(ctx context.Context, field graphql.CollectedField, obj *models.Comment) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Comment_body(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -809,7 +809,7 @@ func (ec *executionContext) fieldContext_Comment_body(_ context.Context, field g
 	return fc, nil
 }
 
-func (ec *executionContext) _Comment_userID(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
+func (ec *executionContext) _Comment_userID(ctx context.Context, field graphql.CollectedField, obj *models.Comment) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Comment_userID(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -853,7 +853,7 @@ func (ec *executionContext) fieldContext_Comment_userID(_ context.Context, field
 	return fc, nil
 }
 
-func (ec *executionContext) _Comment_childComments(ctx context.Context, field graphql.CollectedField, obj *model.Comment) (ret graphql.Marshaler) {
+func (ec *executionContext) _Comment_childComments(ctx context.Context, field graphql.CollectedField, obj *models.Comment) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Comment_childComments(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -879,9 +879,9 @@ func (ec *executionContext) _Comment_childComments(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Comment)
+	res := resTmp.([]*models.Comment)
 	fc.Result = res
-	return ec.marshalNComment2ᚕᚖInternProjᚋgraphᚋmodelᚐCommentᚄ(ctx, field.Selections, res)
+	return ec.marshalNComment2ᚕᚖInternProjᚋinternalᚋmodelsᚐCommentᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Comment_childComments(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -937,9 +937,9 @@ func (ec *executionContext) _Mutation_createPost(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Post)
+	res := resTmp.(*models.Post)
 	fc.Result = res
-	return ec.marshalNPost2ᚖInternProjᚋgraphᚋmodelᚐPost(ctx, field.Selections, res)
+	return ec.marshalNPost2ᚖInternProjᚋinternalᚋmodelsᚐPost(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createPost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1006,9 +1006,9 @@ func (ec *executionContext) _Mutation_createComment(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Comment)
+	res := resTmp.(*models.Comment)
 	fc.Result = res
-	return ec.marshalNComment2ᚖInternProjᚋgraphᚋmodelᚐComment(ctx, field.Selections, res)
+	return ec.marshalNComment2ᚖInternProjᚋinternalᚋmodelsᚐComment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createComment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1075,9 +1075,9 @@ func (ec *executionContext) _Mutation_changePostCommentsAccess(ctx context.Conte
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Post)
+	res := resTmp.(*models.Post)
 	fc.Result = res
-	return ec.marshalNPost2ᚖInternProjᚋgraphᚋmodelᚐPost(ctx, field.Selections, res)
+	return ec.marshalNPost2ᚖInternProjᚋinternalᚋmodelsᚐPost(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_changePostCommentsAccess(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1118,7 +1118,7 @@ func (ec *executionContext) fieldContext_Mutation_changePostCommentsAccess(ctx c
 	return fc, nil
 }
 
-func (ec *executionContext) _Post_id(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_id(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_id(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1162,7 +1162,7 @@ func (ec *executionContext) fieldContext_Post_id(_ context.Context, field graphq
 	return fc, nil
 }
 
-func (ec *executionContext) _Post_title(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_title(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_title(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1206,7 +1206,7 @@ func (ec *executionContext) fieldContext_Post_title(_ context.Context, field gra
 	return fc, nil
 }
 
-func (ec *executionContext) _Post_body(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_body(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_body(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1250,7 +1250,7 @@ func (ec *executionContext) fieldContext_Post_body(_ context.Context, field grap
 	return fc, nil
 }
 
-func (ec *executionContext) _Post_isDisabledComments(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_isDisabledComments(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_isDisabledComments(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1294,7 +1294,7 @@ func (ec *executionContext) fieldContext_Post_isDisabledComments(_ context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Post_userID(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_userID(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_userID(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1338,7 +1338,7 @@ func (ec *executionContext) fieldContext_Post_userID(_ context.Context, field gr
 	return fc, nil
 }
 
-func (ec *executionContext) _Post_comments(ctx context.Context, field graphql.CollectedField, obj *model.Post) (ret graphql.Marshaler) {
+func (ec *executionContext) _Post_comments(ctx context.Context, field graphql.CollectedField, obj *models.Post) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Post_comments(ctx, field)
 	if err != nil {
 		return graphql.Null
@@ -1364,9 +1364,9 @@ func (ec *executionContext) _Post_comments(ctx context.Context, field graphql.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Comment)
+	res := resTmp.([]*models.Comment)
 	fc.Result = res
-	return ec.marshalNComment2ᚕᚖInternProjᚋgraphᚋmodelᚐCommentᚄ(ctx, field.Selections, res)
+	return ec.marshalNComment2ᚕᚖInternProjᚋinternalᚋmodelsᚐCommentᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Post_comments(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1433,9 +1433,9 @@ func (ec *executionContext) _Query_getAllPosts(ctx context.Context, field graphq
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.Post)
+	res := resTmp.([]*models.Post)
 	fc.Result = res
-	return ec.marshalNPost2ᚕᚖInternProjᚋgraphᚋmodelᚐPostᚄ(ctx, field.Selections, res)
+	return ec.marshalNPost2ᚕᚖInternProjᚋinternalᚋmodelsᚐPostᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getAllPosts(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1488,9 +1488,9 @@ func (ec *executionContext) _Query_getPostById(ctx context.Context, field graphq
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.Post)
+	res := resTmp.(*models.Post)
 	fc.Result = res
-	return ec.marshalOPost2ᚖInternProjᚋgraphᚋmodelᚐPost(ctx, field.Selections, res)
+	return ec.marshalOPost2ᚖInternProjᚋinternalᚋmodelsᚐPost(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_getPostById(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1688,7 +1688,7 @@ func (ec *executionContext) _Subscription_commentAdded(ctx context.Context, fiel
 	}
 	return func(ctx context.Context) graphql.Marshaler {
 		select {
-		case res, ok := <-resTmp.(<-chan *model.Comment):
+		case res, ok := <-resTmp.(<-chan *models.Comment):
 			if !ok {
 				return nil
 			}
@@ -1696,7 +1696,7 @@ func (ec *executionContext) _Subscription_commentAdded(ctx context.Context, fiel
 				w.Write([]byte{'{'})
 				graphql.MarshalString(field.Alias).MarshalGQL(w)
 				w.Write([]byte{':'})
-				ec.marshalNComment2ᚖInternProjᚋgraphᚋmodelᚐComment(ctx, field.Selections, res).MarshalGQL(w)
+				ec.marshalNComment2ᚖInternProjᚋinternalᚋmodelsᚐComment(ctx, field.Selections, res).MarshalGQL(w)
 				w.Write([]byte{'}'})
 			})
 		case <-ctx.Done():
@@ -3526,7 +3526,7 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(_ context.Context
 
 var commentImplementors = []string{"Comment"}
 
-func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, obj *model.Comment) graphql.Marshaler {
+func (ec *executionContext) _Comment(ctx context.Context, sel ast.SelectionSet, obj *models.Comment) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, commentImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -3650,7 +3650,7 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 
 var postImplementors = []string{"Post"}
 
-func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj *model.Post) graphql.Marshaler {
+func (ec *executionContext) _Post(ctx context.Context, sel ast.SelectionSet, obj *models.Post) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, postImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -4164,11 +4164,11 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) marshalNComment2InternProjᚋgraphᚋmodelᚐComment(ctx context.Context, sel ast.SelectionSet, v model.Comment) graphql.Marshaler {
+func (ec *executionContext) marshalNComment2InternProjᚋinternalᚋmodelsᚐComment(ctx context.Context, sel ast.SelectionSet, v models.Comment) graphql.Marshaler {
 	return ec._Comment(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNComment2ᚕᚖInternProjᚋgraphᚋmodelᚐCommentᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Comment) graphql.Marshaler {
+func (ec *executionContext) marshalNComment2ᚕᚖInternProjᚋinternalᚋmodelsᚐCommentᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Comment) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4192,7 +4192,7 @@ func (ec *executionContext) marshalNComment2ᚕᚖInternProjᚋgraphᚋmodelᚐC
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNComment2ᚖInternProjᚋgraphᚋmodelᚐComment(ctx, sel, v[i])
+			ret[i] = ec.marshalNComment2ᚖInternProjᚋinternalᚋmodelsᚐComment(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4212,7 +4212,7 @@ func (ec *executionContext) marshalNComment2ᚕᚖInternProjᚋgraphᚋmodelᚐC
 	return ret
 }
 
-func (ec *executionContext) marshalNComment2ᚖInternProjᚋgraphᚋmodelᚐComment(ctx context.Context, sel ast.SelectionSet, v *model.Comment) graphql.Marshaler {
+func (ec *executionContext) marshalNComment2ᚖInternProjᚋinternalᚋmodelsᚐComment(ctx context.Context, sel ast.SelectionSet, v *models.Comment) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4237,11 +4237,11 @@ func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.Selec
 	return res
 }
 
-func (ec *executionContext) marshalNPost2InternProjᚋgraphᚋmodelᚐPost(ctx context.Context, sel ast.SelectionSet, v model.Post) graphql.Marshaler {
+func (ec *executionContext) marshalNPost2InternProjᚋinternalᚋmodelsᚐPost(ctx context.Context, sel ast.SelectionSet, v models.Post) graphql.Marshaler {
 	return ec._Post(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNPost2ᚕᚖInternProjᚋgraphᚋmodelᚐPostᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Post) graphql.Marshaler {
+func (ec *executionContext) marshalNPost2ᚕᚖInternProjᚋinternalᚋmodelsᚐPostᚄ(ctx context.Context, sel ast.SelectionSet, v []*models.Post) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -4265,7 +4265,7 @@ func (ec *executionContext) marshalNPost2ᚕᚖInternProjᚋgraphᚋmodelᚐPost
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNPost2ᚖInternProjᚋgraphᚋmodelᚐPost(ctx, sel, v[i])
+			ret[i] = ec.marshalNPost2ᚖInternProjᚋinternalᚋmodelsᚐPost(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -4285,7 +4285,7 @@ func (ec *executionContext) marshalNPost2ᚕᚖInternProjᚋgraphᚋmodelᚐPost
 	return ret
 }
 
-func (ec *executionContext) marshalNPost2ᚖInternProjᚋgraphᚋmodelᚐPost(ctx context.Context, sel ast.SelectionSet, v *model.Post) graphql.Marshaler {
+func (ec *executionContext) marshalNPost2ᚖInternProjᚋinternalᚋmodelsᚐPost(ctx context.Context, sel ast.SelectionSet, v *models.Post) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -4621,7 +4621,7 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
-func (ec *executionContext) marshalOPost2ᚖInternProjᚋgraphᚋmodelᚐPost(ctx context.Context, sel ast.SelectionSet, v *model.Post) graphql.Marshaler {
+func (ec *executionContext) marshalOPost2ᚖInternProjᚋinternalᚋmodelsᚐPost(ctx context.Context, sel ast.SelectionSet, v *models.Post) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

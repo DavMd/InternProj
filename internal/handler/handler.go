@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"InternProj/graph"
@@ -10,10 +10,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 )
 
-const defaultPort = "8080"
-
-func main() {
-	port := defaultPort
+func ConfigurationHandler(port string) {
 
 	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
 
