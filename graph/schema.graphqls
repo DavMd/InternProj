@@ -1,0 +1,32 @@
+type Subscription {
+  commentAdded(postID: ID!): Comment!
+}
+
+type Post {
+  id: ID!
+  title: String!
+  body: String!
+  isDisabledComments: Boolean!
+  userID: ID!
+  comments(limit: Int, offset: Int): [Comment!]!
+}
+
+type Comment {
+  id: ID!
+  postID: ID!
+  parentID: ID
+  body: String!
+  userID: ID!
+  childComments: [Comment!]!
+}
+
+type Query {
+  getAllPosts: [Post!]!
+  getPostId(id: ID!): Post
+}
+
+type Mutation {
+  createPost(title: String!, body: String!, userID: ID!): Post!
+  createComment(postID: ID!, parentID: ID, body: String!): Comment!
+  changePostCommentsAccess(postID: ID!, userID: ID!, isDisabledComments: Boolean!): Post!
+}
