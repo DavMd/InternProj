@@ -17,6 +17,10 @@ func (r *Resolver) Mutation() generated.MutationResolver {
 	return &mutationResolver{r}
 }
 
+func (r *Resolver) Query() generated.QueryResolver {
+	return &queryResolver{r}
+}
+
 type mutationResolver struct{ *Resolver }
 
 func (r *mutationResolver) CreatePost(ctx context.Context, title string, body string, userID string) (*model.Post, error) {
@@ -87,6 +91,21 @@ func (r *mutationResolver) ChangePostCommentsAccess(ctx context.Context, postID 
 				return post, nil
 			}
 			return nil, fmt.Errorf("wrong user")
+		}
+	}
+	return nil, fmt.Errorf("post not found")
+}
+
+type queryResolver struct{ *Resolver }
+
+func (r *queryResolver) GetAllPosts(ctx context.Context) ([]*model.Post, error) {
+	return r.posts, nil
+}
+
+func (r *queryResolver) GetPostID(ctx context.Context, id string) (*model.Post, error) {
+	for _, post := range r.posts {
+		if post.ID == id {
+			return post, nil
 		}
 	}
 	return nil, fmt.Errorf("post not found")
