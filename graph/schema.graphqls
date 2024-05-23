@@ -22,7 +22,7 @@ type Comment {
 
 type Query {
   getAllPosts: [Post!]!
-  getPostId(id: ID!): Post
+  getPostById(id: ID!): Post
 }
 
 type Mutation {
