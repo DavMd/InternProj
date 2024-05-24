@@ -12,10 +12,11 @@ import (
 func main() {
 
 	var dbType string
-	var connString string
+
+	//connString = "postgres://postgres:glpass@127.0.0.1:5432/InternProj"
 
 	flag.StringVar(&dbType, "db", "memory", "Database type: 'memory' or 'postgres'")
-	flag.StringVar(&connString, "conn", "", "Connection string for PostgreSQL")
+	//flag.StringVar(&connString, "conn", "", "Connection string for PostgreSQL")
 	flag.Parse()
 
 	var store storages.Storage
@@ -25,10 +26,10 @@ func main() {
 	case "memory":
 		store = memory.NewMemoryStore()
 	case "postgres":
-		if connString == "" {
-			log.Fatal("Connection string is required for PostgreSQL")
-		}
-		store, err = postgre.NewPostgreStore(connString)
+		// if connString == "" {
+		// 	log.Fatal("Connection string is required for PostgreSQL")
+		// }
+		store, err = postgre.NewPostgreStore()
 		if err != nil {
 			log.Fatalf("Failed to connect to PostgreSQL: %v", err)
 		}

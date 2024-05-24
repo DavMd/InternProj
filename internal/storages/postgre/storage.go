@@ -13,7 +13,8 @@ type PostgreStore struct {
 	db *pgxpool.Pool
 }
 
-func NewPostgreStore(connString string) (*PostgreStore, error) {
+func NewPostgreStore() (*PostgreStore, error) {
+	connString := "postgres://postgres:glpass@127.0.0.1:5432/InternProj"
 	db, err := pgxpool.Connect(context.Background(), connString)
 	if err != nil {
 		return nil, err
@@ -22,10 +23,11 @@ func NewPostgreStore(connString string) (*PostgreStore, error) {
 }
 
 func (s *PostgreStore) CreatePost(post *models.Post) error {
-	_, err := s.db.Exec(context.Background(), `
-	  INSERT INTO posts (id, title, body, is_disabled_comments, user_id)
-	  VALUES ($1, $2, $3, $4, $5)
-	`, post.ID, post.Title, post.Body, post.IsDisabledComments, post.UserID)
+	err := s.db.QueryRow(context.Background(), `
+	  INSERT INTO posts (title, body, is_disabled_comments, user_id)
+	  VALUES ($1, $2, $3, $4)
+	  RETURNING id
+	`, post.Title, post.Body, post.IsDisabledComments, post.UserID).Scan(&post.ID)
 	return err
 }
 
@@ -42,6 +44,13 @@ func (s *PostgreStore) GetAllPosts() ([]*models.Post, error) {
 		if err := rows.Scan(&post.ID, &post.Title, &post.Body, &post.IsDisabledComments, &post.UserID); err != nil {
 			return nil, err
 		}
+
+		comments, err := s.GetCommentsByPostID(post.ID)
+		if err != nil {
+			return nil, err
+		}
+		post.Comments = comments
+
 		posts = append(posts, &post)
 	}
 	return posts, nil
@@ -67,10 +76,11 @@ func (s *PostgreStore) UpdatePost(post *models.Post) error {
 }
 
 func (s *PostgreStore) CreateComment(comment *models.Comment) error {
-	_, err := s.db.Exec(context.Background(), `
-	  INSERT INTO comments (id, post_id, parent_id, body, user_id)
-	  VALUES ($1, $2, $3, $4, $5)
-	`, comment.ID, comment.PostID, comment.ParentID, comment.Body, comment.UserID)
+	err := s.db.QueryRow(context.Background(), `
+	  INSERT INTO comments (post_id, parent_id, body, user_id)
+	  VALUES ($1, $2, $3, $4)
+	  RETURNING id
+	`, comment.PostID, comment.ParentID, comment.Body, comment.UserID).Scan(&comment.ID)
 	return err
 }
 
@@ -89,12 +99,12 @@ func (s *PostgreStore) GetCommentsByPostID(postID string) ([]*models.Comment, er
 		}
 		comments = append(comments, &comment)
 	}
-	return comments, nil
+	return buildCommentTree(comments), nil
 }
 
 func (s *PostgreStore) GetCommentsByPostIDWithPagination(postID string, limit, offset int) ([]*models.Comment, error) {
 	rows, err := s.db.Query(context.Background(), `
-	SELECT * FROM comments WHERE post_id = $1 ORDER BY created_at ASC LIMIT $2 OFFSET $3
+	SELECT * FROM comments WHERE post_id = $1 ORDER BY post_id ASC LIMIT $2 OFFSET $3
 	`, postID, limit, offset)
 	if err != nil {
 		return nil, err

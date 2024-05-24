@@ -71,7 +71,7 @@ func (s *MemoryStore) GetCommentsByPostID(postID string) ([]*models.Comment, err
 			comments = append(comments, comment)
 		}
 	}
-	return comments, nil
+	return buildCommentTree(comments), nil
 }
 
 func (s *MemoryStore) GetCommentsByPostIDWithPagination(postID string, limit, offset int) ([]*models.Comment, error) {

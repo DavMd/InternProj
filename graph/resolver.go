@@ -6,9 +6,9 @@ import (
 	"InternProj/internal/storages"
 	"context"
 	"fmt"
+	"math/rand"
+	"strconv"
 	"sync"
-
-	"github.com/google/uuid"
 )
 
 type Resolver struct {
@@ -33,7 +33,7 @@ type mutationResolver struct{ *Resolver }
 
 func (r *mutationResolver) CreatePost(ctx context.Context, title string, body string, userID string) (*models.Post, error) {
 	post := &models.Post{
-		ID:                 uuid.NewString(),
+		ID:                 strconv.Itoa(rand.Int()),
 		Title:              title,
 		Body:               body,
 		IsDisabledComments: false,
@@ -62,10 +62,11 @@ func (r *mutationResolver) CreateComment(ctx context.Context, postID string, par
 	}
 
 	comment := &models.Comment{
-		ID:            uuid.NewString(),
+		ID:            strconv.Itoa(rand.Int()),
 		PostID:        postID,
 		ParentID:      parentID,
 		Body:          body,
+		UserID:        post.UserID,
 		ChildComments: []*models.Comment{},
 	}
 
