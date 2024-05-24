@@ -11,11 +11,6 @@ import (
 
 func main() {
 
-	//var dbType string
-
-	// flag.StringVar(&dbType, "db", "memory", "Database type: 'memory' or 'postgres'")
-	// flag.Parse()
-
 	dbType := os.Getenv("DATASTORE_TYPE")
 
 	var store storages.Storage
