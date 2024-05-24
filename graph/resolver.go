@@ -3,6 +3,7 @@ package graph
 import (
 	"InternProj/graph/generated"
 	"InternProj/internal/models"
+	"InternProj/internal/storages"
 	"context"
 	"fmt"
 	"sync"
@@ -11,7 +12,7 @@ import (
 )
 
 type Resolver struct {
-	posts       []*models.Post
+	Store       storages.Storage
 	subscribers map[string][]chan *models.Comment
 	mu          sync.Mutex
 }
@@ -39,7 +40,10 @@ func (r *mutationResolver) CreatePost(ctx context.Context, title string, body st
 		UserID:             userID,
 		Comments:           []*models.Comment{},
 	}
-	r.posts = append(r.posts, post)
+	err := r.Store.CreatePost(post)
+	if err != nil {
+		return nil, err
+	}
 	return post, nil
 }
 
@@ -48,80 +52,106 @@ func (r *mutationResolver) CreateComment(ctx context.Context, postID string, par
 		return nil, fmt.Errorf("post length exceeds 2000 characters")
 	}
 
-	for _, post := range r.posts {
-		if post.ID == postID {
-			if post.IsDisabledComments {
-				return nil, fmt.Errorf("the post is closed for comment")
-			}
-
-			comment := &models.Comment{
-				ID:            uuid.NewString(),
-				PostID:        postID,
-				ParentID:      parentID,
-				Body:          body,
-				ChildComments: []*models.Comment{},
-			}
-
-			if parentID == nil {
-				post.Comments = append(post.Comments, comment)
-			} else {
-				parentComment := findCommentByID(post.Comments, *parentID)
-				if parentComment == nil {
-					return nil, fmt.Errorf("parent comment not found")
-				}
-				parentComment.ChildComments = append(parentComment.ChildComments, comment)
-			}
-
-			r.mu.Lock()
-			defer r.mu.Unlock()
-			for _, ch := range r.subscribers[postID] {
-				ch <- comment
-			}
-
-			return comment, nil
-		}
+	post, err := r.Store.GetPostByID(postID)
+	if err != nil {
+		return nil, err
 	}
-	return nil, fmt.Errorf("post not found")
-}
 
-func findCommentByID(comments []*models.Comment, id string) *models.Comment {
-	for _, comment := range comments {
-		if comment.ID == id {
-			return comment
-		}
-		if nestedComment := findCommentByID(comment.ChildComments, id); nestedComment != nil {
-			return nestedComment
-		}
+	if post.IsDisabledComments {
+		return nil, fmt.Errorf("the post is closed for comment")
 	}
-	return nil
+
+	comment := &models.Comment{
+		ID:            uuid.NewString(),
+		PostID:        postID,
+		ParentID:      parentID,
+		Body:          body,
+		ChildComments: []*models.Comment{},
+	}
+
+	err = r.Store.CreateComment(comment)
+	if err != nil {
+		return nil, err
+	}
+
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for _, ch := range r.subscribers[postID] {
+		ch <- comment
+	}
+
+	return comment, nil
 }
 
 func (r *mutationResolver) ChangePostCommentsAccess(ctx context.Context, postID string, userID string, commentsDisabled bool) (*models.Post, error) {
-	for _, post := range r.posts {
-		if post.ID == postID {
-			if post.UserID == userID {
-				post.IsDisabledComments = commentsDisabled
-				return post, nil
-			}
-			return nil, fmt.Errorf("wrong user")
-		}
+	post, err := r.Store.GetPostByID(postID)
+	if err != nil {
+		return nil, err
 	}
-	return nil, fmt.Errorf("post not found")
+
+	if userID == post.UserID {
+		post.IsDisabledComments = commentsDisabled
+
+		err = r.Store.UpdatePost(post)
+		if err != nil {
+			return nil, err
+		}
+
+		return post, nil
+	}
+	return nil, fmt.Errorf("wrong user post")
 }
 
 type queryResolver struct{ *Resolver }
 
-func (r *queryResolver) GetAllPosts(ctx context.Context) ([]*models.Post, error) {
-	return r.posts, nil
+func (r *queryResolver) GetAllPosts(ctx context.Context, limit *int, offset *int) ([]*models.Post, error) {
+	posts, err := r.Store.GetAllPosts()
+	if err != nil {
+		return nil, err
+	}
+
+	l := 10
+	o := 0
+	if limit != nil {
+		l = *limit
+	}
+	if offset != nil {
+		o = *offset
+	}
+
+	for _, post := range posts {
+		comments, err := r.Store.GetCommentsByPostIDWithPagination(post.ID, l, o)
+		if err != nil {
+			return nil, err
+		}
+		post.Comments = comments
+	}
+
+	return posts, nil
 }
 
-func (r *queryResolver) GetPostByID(ctx context.Context, id string) (*models.Post, error) {
-	for _, post := range r.posts {
-		if post.ID == id {
-			return post, nil
-		}
+func (r *queryResolver) GetPostByID(ctx context.Context, id string, limit *int, offset *int) (*models.Post, error) {
+	post, err := r.Store.GetPostByID(id)
+	if err != nil {
+		return nil, err
 	}
-	return nil, fmt.Errorf("post not found")
+
+	l := 10
+	o := 0
+	if limit != nil {
+		l = *limit
+	}
+	if offset != nil {
+		o = *offset
+	}
+
+	comments, err := r.Store.GetCommentsByPostIDWithPagination(id, l, o)
+	if err != nil {
+		return nil, err
+	}
+
+	post.Comments = comments
+	return post, nil
 }
 
 type subscriptionResolver struct{ *Resolver }

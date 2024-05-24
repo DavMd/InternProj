@@ -3,6 +3,7 @@ package handler
 import (
 	"InternProj/graph"
 	"InternProj/graph/generated"
+	"InternProj/internal/storages"
 	"log"
 	"net/http"
 
@@ -10,9 +11,11 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 )
 
-func ConfigurationHandler(port string) {
+func ConfigurationHandler(store storages.Storage, port string) {
 
-	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: &graph.Resolver{}}))
+	resolver := &graph.Resolver{Store: store}
+
+	srv := handler.NewDefaultServer(generated.NewExecutableSchema(generated.Config{Resolvers: resolver}))
 
 	http.Handle("/", playground.Handler("GraphQL", "/query"))
 	http.Handle("/query", srv)
