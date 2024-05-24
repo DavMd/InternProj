@@ -4,6 +4,9 @@ import (
 	"InternProj/internal/models"
 	"context"
 	"errors"
+	"fmt"
+	"os"
+	"time"
 
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -14,7 +17,14 @@ type PostgreStore struct {
 }
 
 func NewPostgreStore() (*PostgreStore, error) {
-	connString := "postgres://postgres:glpass@127.0.0.1:5432/InternProj"
+	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+		os.Getenv("POSTGRES_USER"),
+		os.Getenv("POSTGRES_PASSWORD"),
+		os.Getenv("POSTGRES_HOST"),
+		os.Getenv("POSTGRES_PORT"),
+		os.Getenv("POSTGRES_DB"),
+	)
+	time.Sleep(10 * time.Second)
 	db, err := pgxpool.Connect(context.Background(), connString)
 	if err != nil {
 		return nil, err
