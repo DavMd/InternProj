@@ -33,7 +33,19 @@ git clone https://github.com/yourusername/InternProj.git
 cd InternProj
 ```
 
-### Build and run the Docker containers
+## Set up environment variables
+
+Create a .env file in the root directory of the project and add the following variables:
+
+```sh
+POSTGRES_USER=user_db_name
+POSTGRES_PASSWORD=pass_db
+POSTGRES_DB=db_name
+POSTGRES_HOST=host
+POSTGRES_PORT=5432
+```
+
+## Build and run the Docker containers
 
 ```sh
 docker-compose up --build
@@ -121,6 +133,20 @@ subscription($postID: ID!) {
 ```
 
 # Database Schema
+
+## Create User
+
+```sql
+CREATE ROLE userPostgr WITH LOGIN PASSWORD 'userPostgr';
+CREATE DATABASE InternProj;
+GRANT ALL PRIVILEGES ON DATABASE InternProj TO userPostgr;
+```
+
+## UUID-OSSP extension
+
+```sql
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+```
 
 ## Posts Table
 

@@ -5,35 +5,16 @@ services:
     build: .
     ports:
       - "8080:8080"
-    environment:
-      - GIN_MODE=release
-      - DATASTORE_TYPE=postgres
-      - POSTGRES_HOST=db
-      - POSTGRES_PORT=5432
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=glpass
-      - POSTGRES_DB=InternProj
+    env_file:
+      - .env
     depends_on:
       - db
 
   db:
     image: postgres:13
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: glpass
-      POSTGRES_DB: InternProj
     ports:
       - "5432:5432"
-    secrets:
-      - db_username
-      - db_password
+    env_file:
+      - .env
     volumes:
       - ./initdb:/docker-entrypoint-initdb.d
-
-secrets:
-  db_username:
-    file: secrets/db_username.txt
-  db_password:
-    file: secrets/db_password.txt
-
-
