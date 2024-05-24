@@ -21,8 +21,8 @@ type Comment {
 }
 
 type Query {
-  getAllPosts: [Post!]!
-  getPostById(id: ID!): Post
+  getAllPosts(limit: Int, offset: Int): [Post!]!
+  getPostById(id: ID!, limit: Int, offset: Int): Post
 }
 
 type Mutation {
