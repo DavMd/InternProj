@@ -95,21 +95,7 @@ func (s *PostgreStore) CreateComment(comment *models.Comment) error {
 }
 
 func (s *PostgreStore) GetCommentsByPostID(postID string) ([]*models.Comment, error) {
-	rows, err := s.db.Query(context.Background(), `SELECT id, post_id, parent_id, body, user_id FROM comments WHERE post_id=$1`, postID)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-
-	var comments []*models.Comment
-	for rows.Next() {
-		var comment models.Comment
-		if err := rows.Scan(&comment.ID, &comment.PostID, &comment.ParentID, &comment.Body, &comment.UserID); err != nil {
-			return nil, err
-		}
-		comments = append(comments, &comment)
-	}
-	return buildCommentTree(comments), nil
+	return s.GetCommentsByPostIDWithPagination(postID, 10, 0)
 }
 
 func (s *PostgreStore) GetCommentsByPostIDWithPagination(postID string, limit, offset int) ([]*models.Comment, error) {
@@ -129,27 +115,5 @@ func (s *PostgreStore) GetCommentsByPostIDWithPagination(postID string, limit, o
 		}
 		comments = append(comments, &comment)
 	}
-	return buildCommentTree(comments), nil
-}
-
-func buildCommentTree(comments []*models.Comment) []*models.Comment {
-	commentMap := make(map[string]*models.Comment)
-	var rootComments []*models.Comment
-
-	for _, comment := range comments {
-		commentMap[comment.ID] = comment
-		comment.ChildComments = []*models.Comment{}
-	}
-
-	for _, comment := range comments {
-		if comment.ParentID == nil {
-			rootComments = append(rootComments, comment)
-		} else {
-			if parent, ok := commentMap[*comment.ParentID]; ok {
-				parent.ChildComments = append(parent.ChildComments, comment)
-			}
-		}
-	}
-
-	return rootComments
+	return models.BuildCommentTree(comments), nil
 }

@@ -63,15 +63,7 @@ func (s *MemoryStore) CreateComment(comment *models.Comment) error {
 }
 
 func (s *MemoryStore) GetCommentsByPostID(postID string) ([]*models.Comment, error) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-	var comments []*models.Comment
-	for _, comment := range s.comments {
-		if comment.PostID == postID {
-			comments = append(comments, comment)
-		}
-	}
-	return buildCommentTree(comments), nil
+	return s.GetCommentsByPostIDWithPagination(postID, 10, 0)
 }
 
 func (s *MemoryStore) GetCommentsByPostIDWithPagination(postID string, limit, offset int) ([]*models.Comment, error) {
@@ -95,27 +87,5 @@ func (s *MemoryStore) GetCommentsByPostIDWithPagination(postID string, limit, of
 	}
 
 	paginatedComments := comments[start:end]
-	return buildCommentTree(paginatedComments), nil
-}
-
-func buildCommentTree(comments []*models.Comment) []*models.Comment {
-	commentMap := make(map[string]*models.Comment)
-	var rootComments []*models.Comment
-
-	for _, comment := range comments {
-		commentMap[comment.ID] = comment
-		comment.ChildComments = []*models.Comment{}
-	}
-
-	for _, comment := range comments {
-		if comment.ParentID == nil {
-			rootComments = append(rootComments, comment)
-		} else {
-			if parent, ok := commentMap[*comment.ParentID]; ok {
-				parent.ChildComments = append(parent.ChildComments, comment)
-			}
-		}
-	}
-
-	return rootComments
+	return models.BuildCommentTree(paginatedComments), nil
 }
