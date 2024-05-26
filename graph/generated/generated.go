@@ -73,7 +73,7 @@ type ComplexityRoot struct {
 	}
 
 	Query struct {
-		GetAllPosts func(childComplexity int, limit *int, offset *int) int
+		GetAllPosts func(childComplexity int) int
 		GetPostByID func(childComplexity int, id string, limit *int, offset *int) int
 	}
 
@@ -88,7 +88,7 @@ type MutationResolver interface {
 	ChangePostCommentsAccess(ctx context.Context, postID string, userID string, isDisabledComments bool) (*models.Post, error)
 }
 type QueryResolver interface {
-	GetAllPosts(ctx context.Context, limit *int, offset *int) ([]*models.Post, error)
+	GetAllPosts(ctx context.Context) ([]*models.Post, error)
 	GetPostByID(ctx context.Context, id string, limit *int, offset *int) (*models.Post, error)
 }
 type SubscriptionResolver interface {
@@ -244,12 +244,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			break
 		}
 
-		args, err := ec.field_Query_getAllPosts_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Query.GetAllPosts(childComplexity, args["limit"].(*int), args["offset"].(*int)), true
+		return e.complexity.Query.GetAllPosts(childComplexity), true
 
 	case "Query.getPostById":
 		if e.complexity.Query.GetPostByID == nil {
@@ -419,7 +414,7 @@ type Comment {
 }
 
 type Query {
-  getAllPosts(limit: Int, offset: Int): [Post!]!
+  getAllPosts: [Post!]!
   getPostById(id: ID!, limit: Int, offset: Int): Post
 }
 
@@ -570,30 +565,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Query_getAllPosts_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 *int
-	if tmp, ok := rawArgs["limit"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
-		arg0, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["limit"] = arg0
-	var arg1 *int
-	if tmp, ok := rawArgs["offset"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("offset"))
-		arg1, err = ec.unmarshalOInt2ᚖint(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["offset"] = arg1
 	return args, nil
 }
 
@@ -1468,7 +1439,7 @@ func (ec *executionContext) _Query_getAllPosts(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().GetAllPosts(rctx, fc.Args["limit"].(*int), fc.Args["offset"].(*int))
+		return ec.resolvers.Query().GetAllPosts(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1485,7 +1456,7 @@ func (ec *executionContext) _Query_getAllPosts(ctx context.Context, field graphq
 	return ec.marshalNPost2ᚕᚖInternProjᚋinternalᚋmodelsᚐPostᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Query_getAllPosts(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Query_getAllPosts(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Query",
 		Field:      field,
@@ -1508,17 +1479,6 @@ func (ec *executionContext) fieldContext_Query_getAllPosts(ctx context.Context, 
 			}
 			return nil, fmt.Errorf("no field named %q was found under type Post", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Query_getAllPosts_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }

@@ -55,12 +55,6 @@ func (s *PostgreStore) GetAllPosts() ([]*models.Post, error) {
 			return nil, err
 		}
 
-		comments, err := s.GetCommentsByPostID(post.ID)
-		if err != nil {
-			return nil, err
-		}
-		post.Comments = comments
-
 		posts = append(posts, &post)
 	}
 	return posts, nil
@@ -92,10 +86,6 @@ func (s *PostgreStore) CreateComment(comment *models.Comment) error {
 	  RETURNING id
 	`, comment.PostID, comment.ParentID, comment.Body, comment.UserID).Scan(&comment.ID)
 	return err
-}
-
-func (s *PostgreStore) GetCommentsByPostID(postID string) ([]*models.Comment, error) {
-	return s.GetCommentsByPostIDWithPagination(postID, 10, 0)
 }
 
 func (s *PostgreStore) GetCommentsByPostIDWithPagination(postID string, limit, offset int) ([]*models.Comment, error) {

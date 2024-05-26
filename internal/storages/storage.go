@@ -9,6 +9,5 @@ type Storage interface {
 	UpdatePost(post *models.Post) error
 
 	CreateComment(comment *models.Comment) error
-	GetCommentsByPostID(postID string) ([]*models.Comment, error)
 	GetCommentsByPostIDWithPagination(postID string, limit, offset int) ([]*models.Comment, error)
 }

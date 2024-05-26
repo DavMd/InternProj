@@ -62,10 +62,6 @@ func (s *MemoryStore) CreateComment(comment *models.Comment) error {
 	return nil
 }
 
-func (s *MemoryStore) GetCommentsByPostID(postID string) ([]*models.Comment, error) {
-	return s.GetCommentsByPostIDWithPagination(postID, 10, 0)
-}
-
 func (s *MemoryStore) GetCommentsByPostIDWithPagination(postID string, limit, offset int) ([]*models.Comment, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
