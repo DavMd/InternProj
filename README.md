@@ -38,6 +38,7 @@ cd InternProj
 Create a .env file in the root directory of the project and add the following variables:
 
 ```sh
+DATASTORE_TYPE=memory_type (memory \ postgres)
 POSTGRES_USER=user_db_name
 POSTGRES_PASSWORD=pass_db
 POSTGRES_DB=db_name
@@ -62,7 +63,7 @@ The application will be available at http://localhost:8080 and PostgreSQL will b
 
 ```graphql
 query {
-  posts {
+  getAllPosts {
     id
     title
     body
@@ -76,7 +77,7 @@ query {
 
 ```graphql
 query($id: UUID!) {
-  post(id: $id) {
+  getPostByID(id: $id) {
     id
     title
     body
