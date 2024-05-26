@@ -105,27 +105,10 @@ func (r *mutationResolver) ChangePostCommentsAccess(ctx context.Context, postID 
 
 type queryResolver struct{ *Resolver }
 
-func (r *queryResolver) GetAllPosts(ctx context.Context, limit *int, offset *int) ([]*models.Post, error) {
+func (r *queryResolver) GetAllPosts(ctx context.Context) ([]*models.Post, error) {
 	posts, err := r.Store.GetAllPosts()
 	if err != nil {
 		return nil, err
-	}
-
-	l := 10
-	o := 0
-	if limit != nil {
-		l = *limit
-	}
-	if offset != nil {
-		o = *offset
-	}
-
-	for _, post := range posts {
-		comments, err := r.Store.GetCommentsByPostIDWithPagination(post.ID, l, o)
-		if err != nil {
-			return nil, err
-		}
-		post.Comments = comments
 	}
 
 	return posts, nil

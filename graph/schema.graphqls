@@ -21,7 +21,7 @@ type Comment {
 }
 
 type Query {
-  getAllPosts(limit: Int, offset: Int): [Post!]!
+  getAllPosts: [Post!]!
   getPostById(id: ID!, limit: Int, offset: Int): Post
 }
 
