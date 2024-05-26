@@ -90,20 +90,63 @@ func (s *PostgreStore) CreateComment(comment *models.Comment) error {
 
 func (s *PostgreStore) GetCommentsByPostIDWithPagination(postID string, limit, offset int) ([]*models.Comment, error) {
 	rows, err := s.db.Query(context.Background(), `
-	SELECT * FROM comments WHERE post_id = $1 ORDER BY post_id ASC LIMIT $2 OFFSET $3
+	SELECT id, post_id, parent_id, body, user_id 
+	FROM comments 
+	WHERE post_id = $1 AND parent_id IS NULL 
+	ORDER BY id ASC 
+	LIMIT $2 OFFSET $3
 	`, postID, limit, offset)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
 
-	var comments []*models.Comment
+	var rootComments []*models.Comment
 	for rows.Next() {
 		var comment models.Comment
 		if err := rows.Scan(&comment.ID, &comment.PostID, &comment.ParentID, &comment.Body, &comment.UserID); err != nil {
 			return nil, err
 		}
-		comments = append(comments, &comment)
+		rootComments = append(rootComments, &comment)
 	}
-	return models.BuildCommentTree(comments), nil
+
+	var paginatedComments []*models.Comment
+	for _, rootComment := range rootComments {
+		paginatedComments = append(paginatedComments, rootComment)
+		nestedComments, err := s.getNestedComments(rootComment.ID)
+		if err != nil {
+			return nil, err
+		}
+		paginatedComments = append(paginatedComments, nestedComments...)
+	}
+
+	return models.BuildCommentTree(paginatedComments), nil
+}
+
+func (s *PostgreStore) getNestedComments(parentID string) ([]*models.Comment, error) {
+	rows, err := s.db.Query(context.Background(), `
+	SELECT id, post_id, parent_id, body, user_id 
+	FROM comments 
+	WHERE parent_id = $1
+	ORDER BY id ASC
+	`, parentID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var nestedComments []*models.Comment
+	for rows.Next() {
+		var comment models.Comment
+		if err := rows.Scan(&comment.ID, &comment.PostID, &comment.ParentID, &comment.Body, &comment.UserID); err != nil {
+			return nil, err
+		}
+		nestedComments = append(nestedComments, &comment)
+		moreNestedComments, err := s.getNestedComments(comment.ID)
+		if err != nil {
+			return nil, err
+		}
+		nestedComments = append(nestedComments, moreNestedComments...)
+	}
+	return nestedComments, nil
 }

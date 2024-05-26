@@ -66,22 +66,40 @@ func (s *MemoryStore) GetCommentsByPostIDWithPagination(postID string, limit, of
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	comments := []*models.Comment{}
+	rootComments := []*models.Comment{}
 	for _, comment := range s.comments {
-		if comment.PostID == postID {
-			comments = append(comments, comment)
+		if comment.PostID == postID && comment.ParentID == nil {
+			rootComments = append(rootComments, comment)
 		}
 	}
 
 	start := offset
 	end := offset + limit
-	if start > len(comments) {
-		start = len(comments)
+	if start > len(rootComments) {
+		start = len(rootComments)
 	}
-	if end > len(comments) {
-		end = len(comments)
+	if end > len(rootComments) {
+		end = len(rootComments)
 	}
 
-	paginatedComments := comments[start:end]
+	paginatedRootComments := rootComments[start:end]
+
+	var paginatedComments []*models.Comment
+	for _, rootComment := range paginatedRootComments {
+		paginatedComments = append(paginatedComments, rootComment)
+		paginatedComments = append(paginatedComments, s.getNestedComments(rootComment.ID)...)
+	}
+
 	return models.BuildCommentTree(paginatedComments), nil
+}
+
+func (s *MemoryStore) getNestedComments(parentID string) []*models.Comment {
+	nestedComments := []*models.Comment{}
+	for _, comment := range s.comments {
+		if *comment.ParentID == parentID {
+			nestedComments = append(nestedComments, comment)
+			nestedComments = append(nestedComments, s.getNestedComments(comment.ID)...)
+		}
+	}
+	return nestedComments
 }
