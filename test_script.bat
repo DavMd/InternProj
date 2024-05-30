@@ -1,4 +1,5 @@
 @echo off
 setlocal enabledelayedexpansion
-go test ./... -v | tee results/results.xml
+go test ./... -v > results/results.xml
+type results/results.xml
 echo Test Completed
