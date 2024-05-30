@@ -4,5 +4,5 @@ setlocal enabledelayedexpansion
 REM Установить зависимости
 go mod tidy
 REM Сборка проекта
-go build -o InternProj ./...
+go build -o build ./...
 echo Сборка завершена
