@@ -83,6 +83,12 @@ query($id: UUID!) {
     body
     is_disabled_comments
     user_id
+    comments {
+      id
+      body
+      post_id
+      child_comments {id body parent_id post_id}
+    }
   }
 }
 ```
