@@ -6,5 +6,5 @@ if not exist "build" mkdir build
 REM Установить зависимости
 go mod tidy
 REM Сборка проекта
-go build -o build/myapp ./...
+go build -o build/myapp.exe ./...
 echo Сборка завершена
