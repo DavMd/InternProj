@@ -1,18 +1,10 @@
 @echo off
+chcp 65001
 setlocal enabledelayedexpansion
 
-echo Checking if results directory exists
-if not exist "results" (
-    echo Creating results directory
-    mkdir results
-) else (
-    echo Results directory already exists
-)
+if not exist "results" mkdir results
 
-echo Running tests...
 go test ./... -v > results/results.xml
-
-echo Test output:
 type results/results.xml
 
 echo Test Completed
